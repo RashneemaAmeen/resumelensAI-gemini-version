@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import type React from 'react';
 import { 
   FileText, 
   Upload, 
@@ -7,10 +8,8 @@ import {
   AlertTriangle, 
   Sparkles, 
   Send, 
-  RefreshCw, 
-  BookOpen, 
+  RefreshCw,  
   Layers, 
-  HelpCircle, 
   ChevronRight, 
   ChevronLeft,
   FileCheck, 
@@ -18,13 +17,46 @@ import {
   MessageSquare,
   Search,
   Check,
-  X,
   FileSpreadsheet,
   ArrowRight,
-  Maximize2,
-  Minimize2,
   Sparkle
 } from 'lucide-react';
+
+declare global {
+  interface Window {
+    pdfjsLib: any;
+  }
+}
+
+type SampleKey = 'software_engineer' | 'data_analyst';
+
+type AnalysisResult = {
+  matchScore: number;
+  summaryOfFit: string;
+  atsAnalysis?: {
+    atsScore?: number;
+    formattingFeedback?: string;
+    keywordMatchStatus?: string;
+    passProbability?: string;
+  };
+  skillsBreakdown?: {
+    requiredAndMatched?: string[];
+    requiredButMissing?: string[];
+    candidateExtraSkills?: string[];
+  };
+  suggestions?: {
+    section: string;
+    recommendation: string;
+  }[];
+  flowchart?: {
+    step: string;
+    status: 'Pass' | 'Warning' | 'Fail';
+    note: string;
+  }[];
+};
+
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
 
 const SAMPLE_RESUMES = {
   software_engineer: `Alex Rivera
@@ -131,7 +163,8 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState('');
 
   // Structured Analysis Result
-  const [analysis, setAnalysis] = useState(null);
+  //const [analysis, setAnalysis] = useState(null);
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
 
   // Conversational AI Assistant
   const [chatMessages, setChatMessages] = useState([
@@ -140,7 +173,8 @@ export default function App() {
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
 
-  const chatEndRef = useRef(null);
+  //const chatEndRef = useRef(null);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -158,8 +192,9 @@ export default function App() {
     }
   }, []);
 
-  const handlePdfUpload = async (event) => {
-    const file = event.target.files[0];
+ // const handlePdfUpload = async (event) => {
+ const handlePdfUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     if (file.type !== 'application/pdf') {
@@ -179,14 +214,20 @@ export default function App() {
       const reader = new FileReader();
       reader.onload = async function () {
         try {
-          const typedArray = new Uint8Array(this.result);
+         // const typedArray = new Uint8Array(this.result);
+         if (!this.result) {
+            throw new Error('No PDF file data was found.');
+          }
+
+        const typedArray = new Uint8Array(this.result as ArrayBuffer);
           const pdf = await window.pdfjsLib.getDocument(typedArray).promise;
           let extractedText = '';
 
           for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
             const page = await pdf.getPage(pageNum);
             const content = await page.getTextContent();
-            const pageText = content.items.map(item => item.str).join(' ');
+            //const pageText = content.items.map(item => item.str).join(' ');
+            const pageText = content.items.map((item: any) => item.str).join(' ');
             extractedText += pageText + '\n';
           }
 
@@ -197,18 +238,19 @@ export default function App() {
           setResumeText(extractedText);
           setIsParsingPdf(false);
         } catch (innerErr) {
-          setErrorMsg(`Error extracting PDF text: ${innerErr.message}`);
+          setErrorMsg(`Error extracting PDF text: ${getErrorMessage(innerErr)}`);
           setIsParsingPdf(false);
         }
       };
       reader.readAsArrayBuffer(file);
     } catch (err) {
-      setErrorMsg(`Failed to initialize parser: ${err.message}`);
+      setErrorMsg(`Failed to initialize parser: ${getErrorMessage(err)}`);
       setIsParsingPdf(false);
     }
   };
 
-  const handleLoadSample = (key) => {
+  //const handleLoadSample = (key) => {
+  const handleLoadSample = (key: SampleKey) => {
     setResumeText(SAMPLE_RESUMES[key]);
     setFileName(`sample_${key}.pdf`);
     setJobDescription(SAMPLE_JOB_DESCRIPTIONS[key]);
@@ -315,7 +357,7 @@ Perform structural verification, ATS scoring, and alignment mappings.`;
       } catch (err) {
         attempt++;
         if (attempt >= maxAttempts) {
-          setErrorMsg(`Network request failed after multiple attempts: ${err.message}`);
+          setErrorMsg(`Network request failed after multiple attempts: ${getErrorMessage(err)}`);
           setIsAnalyzing(false);
           return;
         }
@@ -342,7 +384,7 @@ Perform structural verification, ATS scoring, and alignment mappings.`;
       setActiveTab('dashboard');
     } catch (parseErr) {
       console.error(parseErr);
-      setErrorMsg(`Failed to organize analysis results. Raw text was: ${parseErr.message}`);
+      setErrorMsg(`Failed to organize analysis results. Raw text was: ${getErrorMessage(parseErr)}`);
     } finally {
       setIsAnalyzing(false);
     }
@@ -400,7 +442,7 @@ ${jobDescription}`;
 
       setChatMessages(prev => [...prev, { role: 'assistant', text: assistantText }]);
     } catch (err) {
-      setChatMessages(prev => [...prev, { role: 'assistant', text: `Communication failure: ${err.message}` }]);
+      setChatMessages(prev => [...prev, { role: 'assistant', text: `Communication failure: ${getErrorMessage(err)}` }]);
     } finally {
       setIsChatLoading(false);
     }
@@ -745,7 +787,7 @@ ${jobDescription}`;
                             <span>Matched Requirements ({analysis.skillsBreakdown?.requiredAndMatched?.length || 0})</span>
                           </div>
                           <div className="flex flex-wrap gap-1">
-                            {analysis.skillsBreakdown?.requiredAndMatched?.slice(0, 10).map((skill, index) => (
+                            {analysis.skillsBreakdown?.requiredAndMatched?.slice(0, 10).map((skill: string, index: number) => (
                               <span key={index} className="text-[9px] px-1.5 py-0.5 bg-emerald-950/40 text-emerald-300 border border-emerald-800/30 rounded">
                                 {skill}
                               </span>
@@ -760,7 +802,7 @@ ${jobDescription}`;
                             <span>Identified Gaps ({analysis.skillsBreakdown?.requiredButMissing?.length || 0})</span>
                           </div>
                           <div className="flex flex-wrap gap-1">
-                            {analysis.skillsBreakdown?.requiredButMissing?.slice(0, 10).map((skill, index) => (
+                            {analysis.skillsBreakdown?.requiredButMissing?.slice(0, 10).map((skill: string, index: number) => (
                               <span key={index} className="text-[9px] px-1.5 py-0.5 bg-rose-950/40 text-rose-300 border border-rose-800/30 rounded">
                                 {skill}
                               </span>
@@ -775,7 +817,7 @@ ${jobDescription}`;
                             <span>Extra Value-Add Competencies</span>
                           </div>
                           <div className="flex flex-wrap gap-1">
-                            {analysis.skillsBreakdown?.candidateExtraSkills?.slice(0, 10).map((skill, index) => (
+                            {analysis.skillsBreakdown?.candidateExtraSkills?.slice(0, 10).map((skill: string, index: number) => (
                               <span key={index} className="text-[9px] px-1.5 py-0.5 bg-indigo-950/40 text-indigo-300 border border-indigo-800/30 rounded">
                                 {skill}
                               </span>
@@ -796,7 +838,7 @@ ${jobDescription}`;
                     </div>
 
                     <div className="grid grid-cols-3 gap-3">
-                      {analysis.flowchart?.map((node, index) => (
+                      {analysis.flowchart?.map((node: NonNullable<AnalysisResult['flowchart']>[number], index: number) => (
                         <div 
                           key={index} 
                           className={`bg-slate-950/50 p-3 rounded-lg border flex flex-col justify-between relative transition-all ${
@@ -850,7 +892,7 @@ ${jobDescription}`;
                     </div>
 
                     <div className="space-y-3">
-                      {analysis.suggestions?.map((item, idx) => (
+                      {analysis.suggestions?.map((item: NonNullable<AnalysisResult['suggestions']>[number], idx: number) => (
                         <div key={idx} className="bg-slate-950/40 p-3.5 rounded-xl border border-slate-800/80 flex items-start gap-3">
                           <div className="p-1.5 bg-indigo-500/10 rounded-lg text-indigo-400 mt-0.5">
                             <Check className="w-3.5 h-3.5" />
@@ -904,7 +946,7 @@ ${jobDescription}`;
                         <div>
                           <h4 className="text-[11px] font-bold text-slate-300 mb-2">Priority Keywords to Integrate</h4>
                           <div className="flex flex-wrap gap-1">
-                            {analysis.skillsBreakdown?.requiredButMissing?.slice(0, 6).map((keyword, index) => (
+                            {analysis.skillsBreakdown?.requiredButMissing?.slice(0, 6).map((keyword: string, index: number) => (
                               <span key={index} className="text-[9px] px-1.5 py-0.5 bg-amber-500/10 text-amber-300 border border-amber-500/20 rounded font-mono">
                                 + {keyword}
                               </span>
