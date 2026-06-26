@@ -1,75 +1,79 @@
-# React + TypeScript + Vite
+# ResumeLens AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ResumeLens AI is an AI-powered resume analysis web app that compares a candidate’s resume against a target job description and provides ATS-focused feedback, skill gap analysis, and improvement suggestions.
 
-Currently, two official plugins are available:
+Live Demo: https://resumelens-ai.vercel.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- Upload and parse PDF resumes
+- Compare resume content with a job description
+- Generate AI-based compatibility score
+- ATS formatting and keyword analysis
+- Identify matched skills, missing skills, and extra strengths
+- Interactive resume improvement suggestions
+- Built-in AI career assistant for resume and cover letter guidance
+- Modern responsive UI built with React and Tailwind CSS
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Lucide React
+- PDF.js
+- Gemini API
+- Vercel
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Getting Started
+1. Clone the repository
+git clone https://github.com/RashneemaAmeen/resumelensAI.git
+cd resumelensAI
+2. Install dependencies
+npm install
+3. Add environment variables
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Create a .env file in the root folder:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+GEMINI_API_KEY=your_gemini_api_key_here
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Do not commit this file to GitHub.
 
-```
+4. Run locally
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+For normal Vite frontend development:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+npm run dev
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+For testing the Vercel API route locally:
 
-```
+vercel dev
+5. Build for production
+npm run build
+Deployment
+
+This project is deployed on Vercel.
+
+Required environment variable in Vercel:
+
+GEMINI_API_KEY=your_gemini_api_key_here
+
+Vercel settings:
+
+Framework Preset: Vite
+Build Command: npm run build
+Output Directory: dist
+Screenshots
+
+Add screenshots here after deployment.
+
+![ResumeLens AI Screenshot](./public/screenshot)
+Future Improvements
+Add user authentication
+Save analysis history
+Support DOCX resume uploads
+Improve mobile responsiveness
+Add downloadable PDF reports
+Add more detailed ATS keyword scoring
+Add cover letter generation templates
