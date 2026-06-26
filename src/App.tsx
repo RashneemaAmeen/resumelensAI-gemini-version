@@ -156,7 +156,7 @@ export default function App() {
   const [fileName, setFileName] = useState('sample_software_engineer.pdf');
   const [jobDescription, setJobDescription] = useState(SAMPLE_JOB_DESCRIPTIONS.software_engineer);
 
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
   // Status & Parsing flags
   const [isParsingPdf, setIsParsingPdf] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -333,7 +333,7 @@ Perform structural verification, ATS scoring, and alignment mappings.`;
       }
     };
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+  const apiUrl = "/api/gemini";
 
     let attempt = 0;
     const maxAttempts = 3;
@@ -426,7 +426,7 @@ ${jobDescription}`;
       }
     };
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+   const apiUrl = "/api/gemini";
 
     try {
       const response = await fetch(apiUrl, {
