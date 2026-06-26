@@ -314,12 +314,13 @@ Analyze the candidate's resume strictly against the target Job Description. You 
   ]
 }
 Return absolutely nothing except the pure JSON block. Do not include any markdown wrap or backticks other than JSON content.`;
-
+   const limitedResumeText = resumeText.slice(0, 8000);
+    const limitedJobDescription = jobDescription.slice(0, 5000);
     const userPrompt = `--- CANDIDATE RESUME ---
-${resumeText}
+${limitedResumeText}
 
 --- TARGET JOB DESCRIPTION ---
-${jobDescription}
+${limitedJobDescription}
 
 Perform structural verification, ATS scoring, and alignment mappings.`;
 
@@ -336,9 +337,10 @@ Perform structural verification, ATS scoring, and alignment mappings.`;
   const apiUrl = "/api/gemini";
 
     let attempt = 0;
-    const maxAttempts = 3;
+    const maxAttempts = 1;
     let success = false;
     let responseData = null;
+ 
 
     while (attempt < maxAttempts && !success) {
       try {
