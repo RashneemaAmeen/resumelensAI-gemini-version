@@ -66,11 +66,6 @@ Build Command: npm run build
 Output Directory: dist
 
 
-Screenshots
-
-
-
-![ResumeLens AI Screenshot](./public/screenshots)
 
 Future Improvements
 Add user authentication
